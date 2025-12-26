@@ -20,7 +20,11 @@ const Login = () => {
 
             if (data.succes) {
                 await fetchUser()
-                navigate('/')
+                if (data.user.role === "owner") {
+                    navigate("/owner")
+                } else {
+                    navigate('/')
+                }
                 toast.success("Login berhasil")
             } else {
                 console.error(data.message)

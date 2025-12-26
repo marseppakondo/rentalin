@@ -7,21 +7,24 @@ export const registerUser = async (req, res) => {
   try {
     const { first_name, last_name, username, email, password } = req.body;
 
-    if (
-      !first_name ||
-      !last_name ||
-      !username ||
-      !email ||
-      !password ||
-      password.length < 8
-    ) {
+    if (!first_name || !last_name || !username || !email || !password) {
       return res.json({ succes: false, message: "Semua field wajib diisi" });
     }
 
+    if (password.length < 8)
+      return res.json({
+        succes: false,
+        message: "Password harus lebih dari 8 karakter",
+      });
+
     const userEmailExist = await User.findOne({ email });
     const usernameExist = await User.findOne({ username });
-    if (usernameExist && userEmailExist) {
+    if (usernameExist) {
       return res.json({ succes: false, message: "User sudah terdaftar" });
+    }
+
+    if (userEmailExist) {
+      return res.json({ succes: false, message: "Email sudah terdaftar" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -87,6 +90,28 @@ export const getUserData = async (req, res) => {
     res.json({ succes: true, user });
   } catch (error) {
     console.log(error.message);
+    res.json({ succes: false, message: error.message });
+  }
+};
+
+//get user data by id
+export const getUserDataById = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.json({ succes: false, message: "User id dibutuhkan" });
+    }
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.json({ succes: false, message: "User tidak ditemukan" });
+    }
+
+    res.json({ succes: true, user });
+  } catch (error) {
+    console.log(error);
     res.json({ succes: false, message: error.message });
   }
 };

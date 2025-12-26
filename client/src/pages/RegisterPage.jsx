@@ -19,7 +19,7 @@ const RegisterPage = () => {
 
     if (!emailRegex.test(email)) return toast.error("Email tidak valid");
 
-    if (password.length < 6) return toast.error("Password harus lebih dari 6 karakter");
+    if (password.length < 8) return toast.error("Password harus lebih dari 8 karakter");
 
     if (confirmPassword !== password) return toast.error("Confirmasi password gagal.")
 
@@ -34,7 +34,7 @@ const RegisterPage = () => {
         window.location.reload()
       } else {
         console.error(data.message)
-        toast.error("Register gagal")
+        toast.error(data.message)
       }
 
     } catch (error) {

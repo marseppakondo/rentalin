@@ -7,10 +7,20 @@ import fs from "fs";
 export const addProduct = async (req, res) => {
   try {
     const { _id } = req.user;
-    let product = JSON.parse(req.body.productData);
     const imageFile = req.file;
 
-    // upload image to imagekit
+    // Pastikan data product dan file ada sebelum di-parse
+    if (!req.body.productData || !req.file) {
+      if (imageFile) fs.unlinkSync(imageFile.path);
+      return res.json({
+        succes: false,
+        message: "Data atau gambar tidak lengkap",
+      });
+    }
+
+    let product = JSON.parse(req.body.productData);
+
+    // upload image ke imagekit
     const fileBuffer = fs.createReadStream(imageFile.path);
     const response = await imageKit.files.upload({
       file: fileBuffer,
@@ -61,9 +71,15 @@ export const addProduct = async (req, res) => {
       await Product.create({ ...product, owner: _id, image });
     }
 
+    fs.unlinkSync(imageFile.path);
+
     console.log(image);
     res.json({ succes: true, message: "Product added" });
   } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
     console.log(error.message);
     res.json({ succes: false, message: error.message });
   }
@@ -125,20 +141,27 @@ export const editProduct = async (req, res) => {
   try {
     const { _id } = req.user;
     const { id: productId } = req.params;
-    const updatedData = JSON.parse(req.body.updatedData);
+
+    const updatedData = JSON.parse(req.body.updatedData || "{}");
+    const isImageChanged = updatedData.isImageChanged;
+
+    delete updatedData.isImageChanged;
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.json({ succes: false, message: "Product not found" });
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.json({ succes: false, message: "Kendaraan tidak ditemukan" });
     }
 
     if (product.owner.toString() !== _id.toString()) {
-      return res.json({ succes: false, message: "Unauthorized" });
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.json({ succes: false, message: "Akses ditolak" });
     }
 
-    // Upload image jika ada
-    if (req.file) {
+    //Upload image hanya jika benar-benar diganti
+    if (isImageChanged && req.file) {
       const fileBuffer = fs.createReadStream(req.file.path);
+
       const response = await imageKit.files.upload({
         file: fileBuffer,
         fileName: req.file.originalname,
@@ -154,6 +177,8 @@ export const editProduct = async (req, res) => {
           { format: "webp" },
         ],
       });
+
+      fs.unlinkSync(req.file.path);
     }
 
     let updatedProduct;
@@ -178,6 +203,10 @@ export const editProduct = async (req, res) => {
       product: updatedProduct,
     });
   } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
     console.error(error);
     res.json({ succes: false, message: error.message });
   }

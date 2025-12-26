@@ -15,6 +15,7 @@ const EditProduct = () => {
     const types = ["Mobil", "Motor"]
 
     const [image, setImage] = useState(null)
+    const [isImageChanged, setIsImageChanged] = useState(false)
     const [seatingCapacity, setSeatingCapacity] = useState(0)
     const [features, setFeatures] = useState([])
     const [isLoading, setIsLoading] = useState(false)
@@ -110,6 +111,7 @@ const EditProduct = () => {
                     ...product,
                     seating_capacity: product.type === "Mobil" ? seatingCapacity : undefined,
                     features: product.type === "Mobil" ? product.features : [],
+                    isImageChanged
                 })
             )
 
@@ -154,7 +156,15 @@ const EditProduct = () => {
                             className='h-20 rounded-lg'
                             alt=""
                         />
-                        <input type="file" hidden accept='image/*' onChange={e => setImage(e.target.files[0])} />
+                        <input
+                            type="file"
+                            hidden accept='image/*'
+                            onChange={e => {
+                                setImage(e.target.files[0])
+                                setIsImageChanged(true)
+                            }}
+                        />
+
                         <span className='text-gray-400'>Upload foto kendaraan</span>
                     </label>
 
@@ -219,9 +229,22 @@ const EditProduct = () => {
                                 required
                             >
                                 <option value="">Pilih transmisi</option>
-                                <option value="Manual">Manual</option>
-                                <option value="Automatic">Automatic</option>
-                                <option value="Semi-Automatic">Semi-Automatic</option>
+                                {product.type === "Mobil" ?
+                                    <>
+                                        <option value="Automatic">Automatic</option>
+                                        <option value="Manual">Manual</option>
+                                        <option value="Semi-Automatic">Semi-Automatic</option>
+                                    </>
+                                    : ""
+                                }
+                                {product.type === "Motor" ?
+                                    <>
+                                        <option value="Manual">Manual</option>
+                                        <option value="Metic">Metic</option>
+                                        <option value="Kopling">Kopling</option>
+                                    </>
+                                    : ""
+                                }
                             </select>
                         </div>
 

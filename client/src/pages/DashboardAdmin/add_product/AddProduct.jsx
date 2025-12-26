@@ -178,20 +178,46 @@ const AddProduct = () => {
             <div className='flex flex-col w-full'>
               <label className='text-gray-500'>Transmisi</label>
               <select value={product.transmission} onChange={e => setProduct({ ...product, transmission: e.target.value })} className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none text-gray-400'>
-                <option value="">Pilih transmisi mobil</option>
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
-                <option value="Semi-Automatic">Semi-Automatic</option>
+                <option value="">Pilih transmisi kendaraan</option>
+                {product.type === "Mobil" ?
+                  <>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                    <option value="Semi-Automatic">Semi-Automatic</option>
+                  </>
+                  : ""
+                }
+                {product.type === "Motor" ?
+                  <>
+                    <option value="Manual">Manual</option>
+                    <option value="Metic">Metic</option>
+                    <option value="Kopling">Kopling</option>
+                  </>
+                  : ""
+                }
               </select>
             </div>
 
             <div className='flex flex-col w-full'>
               <label className='text-gray-500'>Tipe bahan bakar</label>
               <select value={product.fuel_type} onChange={e => setProduct({ ...product, fuel_type: e.target.value })} className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none text-gray-400'>
-                <option value="">Pilih bahan bakar mobil</option>
-                <option value="Solar">Solar</option>
-                <option value="Bensin">Bensin</option>
-                <option value="Gas">Gas</option>
+                <option value="">Pilih bahan bakar kendaraan</option>
+                {product.type === "Mobil" ?
+                  <>
+                    <option value="Solar">Solar</option>
+                    <option value="Bensin">Bensin</option>
+                    <option value="Gas">Gas</option>
+                    <option value="Listrik">Listrik</option>
+                  </>
+                  : ""
+                }
+                {product.type === "Motor" ?
+                  <>
+                    <option value="Bensin">Bensin</option>
+                    <option value="Listrik">Listrik</option>
+                  </>
+                  : ""
+                }
               </select>
             </div>
 
